@@ -1,8 +1,7 @@
 package org.LLD.model;
 
 import lombok.Data;
-import org.LLD.ParkingFloor;
-import org.LLD.ParkingSlot;
+import org.LLD.Entity.ParkingSlot;
 
 import java.util.Date;
 import java.util.UUID;

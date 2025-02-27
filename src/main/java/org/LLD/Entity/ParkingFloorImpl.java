@@ -1,8 +1,7 @@
-package org.LLD;
+package org.LLD.Entity;
 
 import lombok.Data;
 import org.LLD.enums.VehicleType;
-import org.LLD.model.Vehicle;
 
 import java.util.ArrayList;
 import java.util.List;

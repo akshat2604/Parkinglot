@@ -1,17 +1,19 @@
-package org.LLD;
+package org.LLD.Entity;
 
 import org.LLD.model.Ticket;
 import org.LLD.model.Vehicle;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ParkingManagerImpl implements ParkingManager {
 
-    static ConcurrentHashMap<Integer, Ticket> ticketHashMap = new ConcurrentHashMap<>();
+    ConcurrentHashMap<Integer, Ticket> ticketHashMap = new ConcurrentHashMap<>();
+    ReentrantLock reentrantLock = new ReentrantLock();
     List<ParkingFloor> parkingFloorList = new ArrayList<>();
+
     @Override
     public void addFloor(int floor, int numberOfCarSlots, int numberOfBikeSlots) {
         parkingFloorList.add(new ParkingFloorImpl(floor,numberOfCarSlots,numberOfBikeSlots));
@@ -31,11 +33,17 @@ public class ParkingManagerImpl implements ParkingManager {
     }
 
     @Override
-    public Ticket parkVehicle(ParkingSlot parkingSlot, Vehicle vehicle) {
-        Boolean parkVehicle = parkingSlot.occupySlot();
-        if(!parkVehicle){
-            return null;
+    public Ticket parkVehicle(Vehicle vehicle) {
+        ParkingSlot parkingSlot = null;
+        reentrantLock.lock();
+        for(ParkingFloor parkingFloor : parkingFloorList){
+            parkingSlot = parkingFloor.getAvailableSlots(vehicle.getVehicleType());
+            if(parkingSlot == null){
+                return null;
+            }
         }
+        parkingSlot.occupySlot();
+        reentrantLock.unlock();
         Ticket ticket = new Ticket(vehicle,parkingSlot);
         ticketHashMap.put(vehicle.getVehicleId(), ticket);
         return ticket;
@@ -43,8 +51,14 @@ public class ParkingManagerImpl implements ParkingManager {
     }
 
     @Override
-    public boolean unparkVehicle(Vehicle vehicle) {
-        return false;
+    public Ticket unparkVehicle(Vehicle vehicle) {
+        Ticket ticket = ticketHashMap.get(vehicle.getVehicleId());
+        reentrantLock.lock();
+        ticket.getParkingSlot().releaseSlot();
+        reentrantLock.unlock();
+        return ticket;
+
+
     }
 
 

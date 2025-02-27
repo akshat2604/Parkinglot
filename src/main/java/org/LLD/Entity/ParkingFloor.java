@@ -1,7 +1,6 @@
-package org.LLD;
+package org.LLD.Entity;
 
 import org.LLD.enums.VehicleType;
-import org.LLD.model.Vehicle;
 
 public interface ParkingFloor {
     ParkingSlot getAvailableSlots(VehicleType vehicleType);
